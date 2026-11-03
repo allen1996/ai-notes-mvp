@@ -56,6 +56,34 @@ export function Workspace() {
   const [toast, setToast] = useState("");
   const selected = meetings.find((m) => m.id === selectedId);
   const busy = meetings.some((m) => isProcessing(m.status));
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const viewport = window.matchMedia("(max-width: 760px)");
+    let unlock: (() => void) | undefined;
+    const syncScrollLock = () => {
+      if (!viewport.matches) {
+        unlock?.();
+        unlock = undefined;
+        return;
+      }
+      if (unlock) return;
+      const { scrollX, scrollY } = window;
+      const root = document.documentElement;
+      root.style.setProperty("--navigation-scroll-offset", `${-scrollY}px`);
+      root.classList.add("mobile-navigation-open");
+      unlock = () => {
+        root.classList.remove("mobile-navigation-open");
+        root.style.removeProperty("--navigation-scroll-offset");
+        window.scrollTo({ left: scrollX, top: scrollY, behavior: "instant" });
+      };
+    };
+    syncScrollLock();
+    viewport.addEventListener("change", syncScrollLock);
+    return () => {
+      viewport.removeEventListener("change", syncScrollLock);
+      unlock?.();
+    };
+  }, [sidebarOpen]);
   const refresh = useCallback(async () => {
     try {
       const [records, cases, settings, allowance] = await Promise.all([
