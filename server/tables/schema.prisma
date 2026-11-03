@@ -1,0 +1,58 @@
+generator client {
+  provider               = "prisma-client"
+  output                 = "../generated/prisma"
+  runtime                = "deno"
+  moduleFormat           = "esm"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Payloads retain the existing meeting format so existing databases need no rewrite.
+model MeetingRecord {
+  ownerId String @map("owner_id")
+  id      String
+  data    String
+
+  @@id([ownerId, id])
+  @@map("meetings")
+}
+
+model MatterRecord {
+  ownerId   String @map("owner_id")
+  id        String
+  reference String
+  data      String
+
+  @@id([ownerId, id])
+  @@unique([ownerId, reference])
+  @@map("matters")
+}
+
+model ExportRecord {
+  ownerId   String @map("owner_id")
+  meetingId String @map("meeting_id")
+  data      String
+
+  @@id([ownerId, meetingId])
+  @@map("exports")
+}
+
+model Metadata {
+  ownerId String @map("owner_id")
+  key     String
+  value   String
+
+  @@id([ownerId, key])
+  @@map("metadata")
+}
+
+// Independent of meetings: deleting a record never restores spent credits.
+model AiUsage {
+  ownerId String @id @map("owner_id")
+  used    Int    @default(0)
+
+  @@map("ai_usage")
+}

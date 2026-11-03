@@ -1,0 +1,12 @@
+.git/
+node_modules/
+.vite/
+dist/
+client/dist/
+.data/
+server/generated/
+.env
+.env.*
+*.log
+.DS_Store
+docs/*.jpg

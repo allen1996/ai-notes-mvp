@@ -1,0 +1,37 @@
+{
+  "name": "meet-mvp",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "db:generate": "deno run -A node_modules/prisma/build/index.js generate --config server/tables/prisma.config.ts",
+    "dev": "node scripts/dev.mjs",
+    "dev:client": "vite --config client/vite.config.ts --host 127.0.0.1",
+    "dev:server": "deno task dev",
+    "build": "tsc --noEmit -p client/tsconfig.json && vite build --config client/vite.config.ts",
+    "test": "deno task test",
+    "test:container": "node scripts/smoke-container.mjs",
+    "check": "deno task check && tsc --noEmit -p client/tsconfig.json",
+    "start": "deno task start"
+  },
+  "dependencies": {
+    "@clerk/backend": "3.26.5",
+    "@clerk/react": "6.18.4",
+    "@prisma/adapter-libsql": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "aws4fetch": "1.0.20",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "prisma": "7.10.1",
+    "typescript": "~5.7.3",
+    "vite": "^6.0.7"
+  }
+}

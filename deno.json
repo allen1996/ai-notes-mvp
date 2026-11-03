@@ -1,0 +1,41 @@
+{
+  "workspace": [
+    "./client",
+    "./server"
+  ],
+  "imports": {
+    "@client/": "./client/src/",
+    "@server/": "./server/",
+    "@lib/": "./lib/"
+  },
+  "tasks": {
+    "dev": "deno run --watch --allow-net --allow-ffi --allow-sys --allow-read --allow-write --allow-env --env-file=.env server/main.ts",
+    "start": "deno run --allow-net --allow-ffi --allow-sys --allow-read --allow-write --allow-env --env-file=.env server/main.ts",
+    "serve": "deno run --cached-only --allow-net --allow-ffi --allow-sys --allow-read --allow-write --allow-env server/main.ts",
+    "test": "deno test --allow-env --allow-ffi --allow-sys --allow-read --allow-write server/ client/tests/ lib/",
+    "check": "deno check server/main.ts && deno test --no-run --allow-env --allow-ffi --allow-sys --allow-read --allow-write server/ client/tests/ lib/"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "deno.window",
+      "dom",
+      "dom.iterable"
+    ]
+  },
+  "fmt": {
+    "exclude": [
+      "dist",
+      "client/dist",
+      "node_modules",
+      "package-lock.json",
+      "server/generated"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "client/dist",
+    "server/generated"
+  ]
+}

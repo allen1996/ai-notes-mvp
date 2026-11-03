@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "dev": "npm --prefix .. run dev:client",
+    "build": "npm --prefix .. run build",
+    "check": "../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+    "test": "deno task --cwd .. test"
+  }
+}

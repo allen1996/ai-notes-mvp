@@ -1,0 +1,18 @@
+{
+  "deno.enablePaths": [
+    "./server",
+    "./lib",
+    "./client/tests"
+  ],
+  "deno.config": "./deno.json",
+  "deno.codeLens.testArgs": [
+    "--allow-env",
+    "--allow-ffi",
+    "--allow-sys",
+    "--allow-read",
+    "--allow-write"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.preferences.importModuleSpecifier": "non-relative"
+}

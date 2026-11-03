@@ -1,0 +1,24 @@
+name: Core workflow
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.5
+      - run: npm ci --ignore-scripts
+      - run: npm run db:generate
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Build Railway image with a dummy public key
+        run: docker build --build-arg VITE_CLERK_PUBLISHABLE_KEY=pk_test_dGVzdC5jbGVyay5hY2NvdW50cy5kZXYk -t meet-mvp:railway-test .
+      - run: npm run test:container

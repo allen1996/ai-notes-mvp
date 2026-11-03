@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "dev": "deno task --cwd .. dev",
+    "start": "deno task --cwd .. start",
+    "check": "deno task --cwd .. check",
+    "test": "deno task --cwd .. test"
+  }
+}
