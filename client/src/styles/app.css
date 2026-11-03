@@ -693,6 +693,7 @@ small {
 .audio-strip {
   display: flex;
   align-items: center;
+  min-height: 57px;
   gap: 10px;
   border: 1px solid var(--border);
   background: #fafafa;
@@ -1760,6 +1761,9 @@ small {
     border-right: 0;
   }
   .meeting-detail {
+    display: none;
+  }
+  .meeting-workspace > .empty {
     display: none;
   }
   .meeting-workspace.show-detail .meeting-list-column {

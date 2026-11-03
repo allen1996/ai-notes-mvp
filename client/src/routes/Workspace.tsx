@@ -33,6 +33,12 @@ import type { Filter, Page } from "@client/types/navigation.ts";
 import { Integrations } from "@client/routes/Integrations.tsx";
 import { NewMatter } from "@client/components/matters/NewMatter.tsx";
 
+function defaultMeetingId(meetings: Meeting[]) {
+  return window.matchMedia("(max-width: 760px)").matches
+    ? null
+    : meetings[0]?.id ?? null;
+}
+
 export function Workspace() {
   const api = useApi();
   const deletedIds = useRef(new Set<string>());
@@ -101,7 +107,7 @@ export function Workspace() {
       setSelectedId((current) =>
         items.some((item) => item.id === current)
           ? current
-          : items[0]?.id ?? null
+          : defaultMeetingId(items)
       );
     } catch (cause) {
       setError((cause as Error).message);
@@ -161,7 +167,9 @@ export function Workspace() {
     deletedIds.current.add(id);
     const next = meetings.filter((meeting) => meeting.id !== id);
     setMeetings(next);
-    setSelectedId((current) => current === id ? next[0]?.id ?? null : current);
+    setSelectedId((current) =>
+      current === id ? defaultMeetingId(next) : current
+    );
     setMobileDetail(false);
     setToast("Meeting deleted");
     void refreshUsage();
@@ -453,10 +461,10 @@ export function Workspace() {
                           setFilter("all");
                           setQuery("");
                           setPage("meetings");
-                          const first = meetings.find((m) =>
+                          const matching = meetings.filter((m) =>
                             m.matterId === matter.id
                           );
-                          setSelectedId(first?.id ?? null);
+                          setSelectedId(defaultMeetingId(matching));
                           setMobileDetail(false);
                         }}
                       >
