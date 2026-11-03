@@ -57,13 +57,18 @@ export function MeetingDetail(
   const [transcriptQuery, setTranscriptQuery] = useState("");
   const audio = useRef<HTMLAudioElement>(null);
   const [audioUrl, setAudioUrl] = useState("");
+  const [audioReady, setAudioReady] = useState(false);
+  const [audioNeedsLoad, setAudioNeedsLoad] = useState(false);
+  const [audioAttempt, setAudioAttempt] = useState(0);
   const [audioError, setAudioError] = useState("");
   useEffect(() => {
+    setAudioUrl("");
+    setAudioReady(false);
+    setAudioNeedsLoad(false);
+    setAudioError("");
     if (meeting.source === "demo") return;
     const controller = new AbortController();
     let objectUrl = "";
-    setAudioUrl("");
-    setAudioError("");
     void api.audio(meeting.id, controller.signal).then((blob) => {
       if (controller.signal.aborted) return;
       objectUrl = URL.createObjectURL(blob);
@@ -75,7 +80,7 @@ export function MeetingDetail(
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [meeting.id, meeting.source, api]);
+  }, [meeting.id, meeting.source, api, audioAttempt]);
   const matter = matters.find((m) => m.id === meeting.matterId);
   const saved = meeting.status === "saved";
   const ready = meeting.status === "ready";
@@ -160,9 +165,11 @@ export function MeetingDetail(
     notify("Meeting notes downloaded");
   }
   function seek(milliseconds: number) {
-    if (audio.current) {
+    if (audioReady && audio.current && !audioError) {
       audio.current.currentTime = milliseconds / 1000;
-      void audio.current.play().catch(() => {});
+      void audio.current.play().catch(() => {
+        notify("Playback could not start. Try the recording’s play button.");
+      });
     }
   }
   const utterances = meeting.utterances.filter((u) =>
@@ -241,17 +248,62 @@ export function MeetingDetail(
                 <audio
                   ref={audio}
                   aria-label="Meeting recording"
-                  controls
-                  preload="metadata"
+                  controls={audioReady && !audioError}
+                  hidden={!audioReady || !!audioError}
+                  preload="auto"
                   src={audioUrl || undefined}
+                  onCanPlay={() => {
+                    setAudioReady(true);
+                    setAudioNeedsLoad(false);
+                  }}
+                  onSuspend={(event) => {
+                    // Mobile browsers may wait for a tap before preloading media.
+                    if (
+                      audioUrl &&
+                      event.currentTarget.readyState <
+                        HTMLMediaElement.HAVE_FUTURE_DATA
+                    ) {
+                      setAudioNeedsLoad(true);
+                    }
+                  }}
+                  onError={() => {
+                    if (!audioUrl) return;
+                    setAudioReady(false);
+                    setAudioError(
+                      "This recording could not be played. Try loading it again.",
+                    );
+                  }}
                 />
+                {!audioReady && !audioError && (
+                  <>
+                    <Spinner size={16} />
+                    <span role="status">
+                      {audioUrl
+                        ? "Preparing recording…"
+                        : "Loading your recording…"}
+                    </span>
+                    {audioNeedsLoad && (
+                      <button
+                        className="text-button"
+                        onClick={() => audio.current?.load()}
+                      >
+                        Load recording
+                      </button>
+                    )}
+                  </>
+                )}
+                {audioError && (
+                  <button
+                    className="text-button"
+                    onClick={() => setAudioAttempt((attempt) => attempt + 1)}
+                  >
+                    Try again
+                  </button>
+                )}
               </div>
             )}
           {audioError && <p className="form-error" role="alert">{audioError}
           </p>}
-          {meeting.source !== "demo" && !audioUrl && !audioError && (
-            <p className="audio-status">Loading your recording…</p>
-          )}
           <div
             className="detail-tabs"
             role="tablist"
@@ -564,9 +616,12 @@ export function MeetingDetail(
                             <strong>Speaker {u.speaker}</strong>
                             <button
                               className="text-button"
-                              disabled={meeting.source === "demo"}
+                              disabled={meeting.source === "demo" ||
+                                !audioReady || !!audioError}
                               title={meeting.source === "demo"
                                 ? "No audio for example meetings"
+                                : !audioReady || audioError
+                                ? "Recording is not ready to play"
                                 : "Play from this point"}
                               onClick={() =>
                                 seek(u.start)}

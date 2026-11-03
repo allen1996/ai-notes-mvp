@@ -1,6 +1,6 @@
 import { ClerkProvider, SignIn, useAuth } from "@clerk/react";
 import { AudioLines } from "lucide-react";
-import { type ReactNode } from "react";
+import { type ReactNode, useSyncExternalStore } from "react";
 import { AuthenticatedApi } from "@client/components/auth/AuthenticatedApi.tsx";
 import { Workspace } from "@client/routes/Workspace.tsx";
 import { Spinner } from "@client/components/ui/Spinner.tsx";
@@ -46,7 +46,20 @@ export function AuthScreen() {
   );
 }
 
+const mobileAuthQuery = "(max-width: 800px)";
+
+function subscribeToMobileAuth(onChange: () => void) {
+  const query = window.matchMedia(mobileAuthQuery);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function isMobileAuth() {
+  return window.matchMedia(mobileAuthQuery).matches;
+}
+
 function AuthGate() {
+  const mobile = useSyncExternalStore(subscribeToMobileAuth, isMobileAuth);
   const { isLoaded, isSignedIn, userId, sessionId } = useAuth();
   if (!isLoaded) {
     return (
@@ -63,13 +76,28 @@ function AuthGate() {
       <AuthShell>
         <div className="auth-sign-in">
           <h2>Continue to Meet</h2>
-          <p className="hidden">Use Google to get started.</p>
+          <p className="auth-subtitle">Sign in to your workspace.</p>
           <SignIn
             routing="hash"
             withSignUp
             transferable
             appearance={{
-              variables: { colorBackground: "#ffffff" },
+              variables: mobile
+                ? {
+                  colorBackground: "#191919",
+                  colorForeground: "#f5f5f5",
+                  colorNeutral: "#ffffff",
+                  colorMuted: "#242424",
+                  colorMutedForeground: "#a3a3a3",
+                  colorInput: "#242424",
+                  colorInputForeground: "#f5f5f5",
+                  colorPrimaryForeground: "#111111",
+                  colorDanger: "#ff9b89",
+                  colorBorder: "#383838",
+                  colorRing: "#ff6547",
+                  borderRadius: "0.75rem",
+                }
+                : { colorBackground: "#ffffff" },
               elements: {
                 rootBox: { width: "100%" },
                 cardBox: {
@@ -89,7 +117,7 @@ function AuthGate() {
                   margin: "0",
                 },
                 footer: {
-                  background: "#ffffff",
+                  background: mobile ? "transparent" : "#ffffff",
                   backgroundImage: "none",
                   padding: "0",
                   margin: "12px 0 0",
@@ -97,18 +125,29 @@ function AuthGate() {
                 footerAction: { padding: "20px 0", margin: "0" },
                 footerItem: { padding: "16px 0 0" },
                 header: { display: "none" },
-                formFieldInput: { minHeight: "44px", borderRadius: "14px" },
-                socialButtonsBlockButton: {
-                  minHeight: "48px",
-                  borderRadius: "14px",
-                },
+                formFieldInput: mobile
+                  ? {
+                    minHeight: "46px",
+                    borderRadius: "12px",
+                    border: "1px solid #383838",
+                  }
+                  : { minHeight: "44px", borderRadius: "14px" },
+                socialButtonsBlockButton: mobile
+                  ? {
+                    minHeight: "48px",
+                    borderRadius: "12px",
+                    background: "#242424",
+                    border: "1px solid #383838",
+                    color: "#f5f5f5",
+                  }
+                  : { minHeight: "48px", borderRadius: "14px" },
                 formButtonPrimary: {
                   color: "#111111",
                   fontWeight: "700",
-                  minHeight: "44px",
-                  borderRadius: "999px",
+                  minHeight: mobile ? "46px" : "44px",
+                  borderRadius: mobile ? "12px" : "999px",
                 },
-                footerActionLink: { color: "#a62d14" },
+                footerActionLink: { color: mobile ? "#ff8a73" : "#a62d14" },
               },
             }}
             forceRedirectUrl="/"
@@ -144,9 +183,24 @@ function AuthShell({ children }: { children: ReactNode }) {
         </div>
         <div className="auth-story-main">
           <div className="auth-copy">
-            <h1>
+            <h1 aria-label="Less admin. More focus.">
               Less admin.<br />
-              <span>More present.</span>
+              <span className="auth-rotating-copy" aria-hidden="true">
+                {[
+                  "More focus.",
+                  "Clearer notes.",
+                  "Better meetings.",
+                  "More present.",
+                ].map((phrase, index) => (
+                  <span
+                    className="auth-headline-option"
+                    key={phrase}
+                    style={{ animationDelay: `${index * 4}s` }}
+                  >
+                    {phrase}
+                  </span>
+                ))}
+              </span>
             </h1>
             <p>
               Record your conversations. Leave with clear notes and next steps.
@@ -157,7 +211,13 @@ function AuthShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </section>
-      <section className="auth-panel">
+      <section className="auth-panel" aria-label="Meet sign-in">
+        <div className="auth-brand auth-mobile-brand">
+          <img src="/vxt-symbol.svg" alt="" />
+          <strong>
+            meet<span>.</span>
+          </strong>
+        </div>
         {children}
       </section>
     </main>

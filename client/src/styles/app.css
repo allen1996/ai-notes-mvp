@@ -1694,7 +1694,6 @@ small {
     inset: 0 0 0 224px;
     background: #0000004a;
     z-index: 29;
-    backdrop-filter: blur(2px);
   }
   .main-shell {
     margin-left: 0;

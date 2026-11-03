@@ -47,7 +47,9 @@ export function AccountControls() {
       className="account-control"
       ref={root}
       onBlur={(event) => {
+        // Touch taps can blur without focusing another element before click fires.
         if (
+          event.relatedTarget &&
           !event.currentTarget.contains(event.relatedTarget as Node)
         ) setOpen(false);
       }}
