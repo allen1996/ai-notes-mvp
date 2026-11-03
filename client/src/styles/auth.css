@@ -253,7 +253,6 @@
   .auth-setup {
     min-width: 0;
   }
-  .auth-sign-in > h2,
   .auth-setup > h2 {
     font-size: 25px;
     letter-spacing: -.8px;
@@ -261,13 +260,16 @@
     margin: 0 0 8px;
     text-align: center;
   }
-  .auth-sign-in > p,
   .auth-setup > p {
     display: block;
     line-height: 1.7;
     color: #a3a3a3;
     margin-bottom: 28px;
     text-align: center;
+  }
+  .auth-sign-in > h2,
+  .auth-sign-in > .auth-subtitle {
+    display: none;
   }
   .auth-setup a {
     width: 100%;

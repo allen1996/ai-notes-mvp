@@ -1581,7 +1581,7 @@ small {
 }
 .mobile-back,
 .menu-toggle,
-.sidebar-scrim {
+.sidebar-close {
   display: none;
 }
 @keyframes spin {
@@ -1679,21 +1679,30 @@ small {
 }
 @media (max-width: 760px) {
   .sidebar {
-    width: 224px;
-    left: -224px;
-    visibility: hidden;
-    transition: left .2s, visibility .2s;
+    display: none;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    padding: calc(24px + env(safe-area-inset-top)) 20px
+      calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .sidebar.open {
-    left: 0;
-    visibility: visible;
+    display: flex;
   }
-  .sidebar-scrim {
-    display: block;
-    position: fixed;
-    inset: 0 0 0 224px;
-    background: #0000004a;
-    z-index: 29;
+  .sidebar-close {
+    display: inline-flex;
+    position: absolute;
+    top: calc(20px + env(safe-area-inset-top));
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    color: #fff;
+    background: #ffffff0a;
+  }
+  .sidebar .brand {
+    margin-right: 56px;
   }
   .main-shell {
     margin-left: 0;

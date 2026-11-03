@@ -157,14 +157,17 @@ export function Workspace() {
   });
   return (
     <div className="app-shell">
-      {sidebarOpen && (
+      <aside
+        id="workspace-navigation"
+        className={`sidebar ${sidebarOpen ? "open" : ""}`}
+      >
         <button
-          className="sidebar-scrim"
+          className="icon-button sidebar-close"
           aria-label="Close navigation"
           onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        >
+          <X size={22} />
+        </button>
         <button
           className="brand"
           onClick={() => navigate("meetings")}
@@ -216,6 +219,8 @@ export function Workspace() {
               <button
                 className="icon-button menu-toggle"
                 aria-label="Open navigation"
+                aria-controls="workspace-navigation"
+                aria-expanded={sidebarOpen}
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu size={21} />
